@@ -6,17 +6,17 @@ import "./QuestionTool.css";
 export default function QuestionTool() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [responseJSON, setResponseJSON] = useState([]); // Ensure initialized as an array
+  const [responseJSON, setResponseJSON] = useState([]);
   const [showSubmitButton, setShowSubmitButton] = useState(true);
   const [OriginalQuestion, setOriginalQuestion] = useState("");
   const [MarkScheme, setMarkScheme] = useState("");
   const [ExaminerReport, setExaminerReport] = useState("");
-  const QtextareaRef = useRef(null);
-  const MStextareaRef = useRef(null);
-  const ERtextareaRef = useRef(null);
   const [ContextArea, setContext] = useState("");
   const [NumberOfVariations, setVariations] = useState("");
   const [images, setImages] = useState([]);
+  const QtextareaRef = useRef(null);
+  const MStextareaRef = useRef(null);
+  const ERtextareaRef = useRef(null);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -32,6 +32,7 @@ export default function QuestionTool() {
   const SendQuery = () => {
     setShowSubmitButton(false);
     setLoading(true);
+    setError(null); // Reset error before making a new request
 
     const payload = {
       OriginalQuestion,
@@ -57,30 +58,36 @@ export default function QuestionTool() {
       })
       .then((data) => {
         try {
-          const jsonMatch = data.response.match(/\[.*\]/); // Match JSON array
+          const cleanedResponse = data.response.replace(/\n/g, '').trim();
+          const jsonMatch = cleanedResponse.match(/\[.*\]/); // Match JSON array
           if (jsonMatch) {
-            const parsedJSON = JSON.parse(jsonMatch[0]); // Extract and parse
+            const parsedJSON = JSON.parse(cleanedResponse); // Extract and parse
             setResponseJSON(Array.isArray(parsedJSON) ? parsedJSON : []);
           } else {
-            console.error("No JSON array found in the response.");
+            console.error("Not enough context given.");
             setResponseJSON([]);
           }
         } catch (error) {
-          console.error("Error parsing response JSON:", error);
-          setError(error);
-          setResponseJSON([]); // Fallback to empty array
+          console.error("Error parsing response JSON:", error.message);
+          setError(error.message);
+          setResponseJSON([]);
         } finally {
           setLoading(false);
           setShowSubmitButton(true);
         }
       })
       .catch((error) => {
-        console.error("Error sending question:", error);
-        setError(error);
+        console.error("Error sending question:", error.message);
+        setError(error.message);
         setLoading(false);
         setShowSubmitButton(true);
       });
   };
+
+  useEffect(() => {
+    // Log the responseJSON to debug
+    console.log("responseJSON:", responseJSON);
+  }, [responseJSON]);
 
   return (
     <div className="question-tool-container">
@@ -156,72 +163,58 @@ export default function QuestionTool() {
           </button>
         )}
         {loading && <p className="loading-text">Loading...</p>}
-        {error && <p className="error-message">Error: {error.message}</p>}
       </div>
 
-      {/* Always render the table */}
       <div className="response-section">
-        <table className="response-table">
-          <thead>
-            <tr>
-              <th>GroupID</th>
-              <th>Topic</th>
-              <th>Question Type</th>
-              <th>Theme</th>
-              <th>Marks</th>
-              <th>Context</th>
-              <th>Question</th>
-              <th>Options</th>
-              <th>Answer</th>
-              <th>ImageID</th>
-              <th>Knowledge</th>
-              <th>Application</th>
-              <th>Analysis</th>
-              <th>Evaluation</th>
-              <th>K</th>
-              <th>A</th>
-              <th>A2</th>
-              <th>EV</th>
-              <th>Parent Group ID</th>
-              <th>Part Number</th>
-            </tr>
-          </thead>
-          <tbody>
-            {responseJSON.length > 0
-              ? responseJSON.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.GroupID || ""}</td>
-                    <td>{item.Topic || ""}</td>
-                    <td>{item.QuestionType || ""}</td>
-                    <td>{item.Theme || ""}</td>
-                    <td>{item.Marks || ""}</td>
-                    <td>{item.Context || ""}</td>
-                    <td>{item.Question || ""}</td>
-                    <td>{item.Options?.join(", ") || ""}</td>
-                    <td>{item.Answer || ""}</td>
-                    <td>{item.ImageID || ""}</td>
-                    <td>{item.Knowledge || ""}</td>
-                    <td>{item.Application || ""}</td>
-                    <td>{item.Analysis || ""}</td>
-                    <td>{item.Evaluation || ""}</td>
-                    <td>{item.K || ""}</td>
-                    <td>{item.A || ""}</td>
-                    <td>{item.A2 || ""}</td>
-                    <td>{item.EV || ""}</td>
-                    <td>{item.ParentGroupID || ""}</td>
-                    <td>{item.PartNumber || ""}</td>
-                  </tr>
-                ))
-              : // Render empty rows when JSON is empty
-                Array.from({ length: 1 }, (_, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {Array.from({ length: 20 }, (_, colIndex) => (
-                      <td key={colIndex}></td>
-                    ))}
-                  </tr>
-                ))}
-          </tbody>
-        </table>
+        {responseJSON.length > 0 ? (
+          <table className="response-table">
+            <thead>
+              <tr>
+                <th>GroupID</th>
+                <th>Topic</th>
+                <th>QuestionType</th>
+                <th>Marks</th>
+                <th>Question</th>
+                <th>Answer</th>
+                <th>Criteria</th>
+                <th>Context</th>
+                <th>Knowledge</th>
+                <th>Application</th>
+                <th>Analysis</th>
+                <th>Evaluation</th>
+                <th>ImageID</th>
+                <th>WorkingOut</th>
+                <th>ParentGroupID</th>
+                <th>PartNumber</th>
+              </tr>
+            </thead>
+            <tbody>
+              {responseJSON.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.GroupID}</td>
+                  <td>{item.Topic}</td>
+                  <td>{item.QuestionType}</td>
+                  <td>{item.Marks}</td>
+                  <td>{item.Question}</td>
+                  <td>{item.Answer}</td>
+                  <td>{item.Criteria}</td>
+                  <td>{item.Context}</td>
+                  <td>{item.Knowledge}</td>
+                  <td>{item.Application}</td>
+                  <td>{item.Analysis}</td>
+                  <td>{item.Evaluation}</td>
+                  <td>{item.ImageID}</td>
+                  <td>{item.WorkingOut}</td>
+                  <td>{item.ParentGroupID}</td>
+                  <td>{item.PartNumber}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          !loading && <p>No data available to display.</p>
+        )}
+        {error && <p className="error-text">Error: {error}</p>}
       </div>
     </div>
   );

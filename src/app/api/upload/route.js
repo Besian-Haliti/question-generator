@@ -21,7 +21,7 @@ export async function POST(req) {
         // Construct the prompt for the AI
         const systemprompt = `You are an AI generating questions for OCR Economics A Level papers. 
         You will receive context and detailed inputs including mark schemes, examiner reports, and relevant images. Generate a JSON response for each variation of the question, strictly adhering to the provided structure. 
-        Here is the format for your JSON response:
+        Here is the format for all your responses even if not enough data is given:
         [
         {
             "GroupID": "",
@@ -49,8 +49,8 @@ export async function POST(req) {
         }
         ]
         Ensure the sum of K, A, A2, and EV does not exceed 4.
-        Return the results as JSON and even if no results ar returned ensure you 
-        return a JSON in the format stated with the explanation no results were returned.`;
+        Always respond as JSON array and even if no context is given ensure you always
+        return a JSON array.`;
 
         const prompt = `Here is the context:
             Context Area: ${ContextArea}
@@ -66,8 +66,8 @@ export async function POST(req) {
             3. Provide detailed mark schemes and criteria descriptions.
             4. Incorporate images into ImageID if provided.
             5. Use effective MR (Marking Requirements) and ER (Examiner Report insights).
-            Return the results as JSON and even if no results ar returned ensure you return a
-             JSON in the format stated with the explanation no results were returned.`;
+            Always respond as JSON array and even if no context is given ensure you always
+            return a JSON array.`;
 
         // Make a POST request to the OpenAI API
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
