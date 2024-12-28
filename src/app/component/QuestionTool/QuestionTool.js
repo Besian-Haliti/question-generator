@@ -198,6 +198,7 @@ export default function QuestionTool() {
               {responseJSON.map((item, index) => (
                 <tr key={index}>
                   <td>{item.GroupID}</td>
+                  <td>{item.Topic}</td>
                   <td>{item.QuestionType}</td>
                   <td>{item.Theme}</td>
                   <td>{item.Marks}</td>
