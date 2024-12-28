@@ -173,17 +173,23 @@ export default function QuestionTool() {
                 <th>GroupID</th>
                 <th>Topic</th>
                 <th>QuestionType</th>
+                <th>Theme</th>
                 <th>Marks</th>
-                <th>Question</th>
-                <th>Answer</th>
-                <th>Criteria</th>
                 <th>Context</th>
+                <th>Question</th>
+                <th>Options</th>
+                <th>Answer</th>
+                <th>ImageID</th>
                 <th>Knowledge</th>
                 <th>Application</th>
                 <th>Analysis</th>
                 <th>Evaluation</th>
-                <th>ImageID</th>
                 <th>WorkingOut</th>
+                <th>Criteria</th>
+                <th>K</th>
+                <th>A</th>
+                <th>A2</th>
+                <th>Ev</th>
                 <th>ParentGroupID</th>
                 <th>PartNumber</th>
               </tr>
@@ -192,19 +198,24 @@ export default function QuestionTool() {
               {responseJSON.map((item, index) => (
                 <tr key={index}>
                   <td>{item.GroupID}</td>
-                  <td>{item.Topic}</td>
                   <td>{item.QuestionType}</td>
+                  <td>{item.Theme}</td>
                   <td>{item.Marks}</td>
-                  <td>{item.Question}</td>
-                  <td>{item.Answer}</td>
-                  <td>{item.Criteria}</td>
                   <td>{item.Context}</td>
+                  <td>{item.Question}</td>
+                  <td>{item.Options}</td>
+                  <td>{item.Answer}</td>
+                  <td>{item.ImageID}</td>
                   <td>{item.Knowledge}</td>
                   <td>{item.Application}</td>
                   <td>{item.Analysis}</td>
                   <td>{item.Evaluation}</td>
-                  <td>{item.ImageID}</td>
                   <td>{item.WorkingOut}</td>
+                  <td>{item.Criteria}</td>
+                  <td>{item.K}</td>
+                  <td>{item.A}</td>
+                  <td>{item.A2}</td>
+                  <td>{item.EV}</td>
                   <td>{item.ParentGroupID}</td>
                   <td>{item.PartNumber}</td>
                 </tr>
