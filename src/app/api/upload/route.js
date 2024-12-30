@@ -1,3 +1,12 @@
+import { format } from 'date-fns';
+
+function genparentid() {
+    const now = new Date();
+    let parentId = format(now, 'ddMMyyyyHHmm'); // Format to 'DDMMYYYYHHMM'
+    parentId += "A";
+    return parentId;
+}
+
 export async function POST(req) {
     try {
         // Parse the incoming request body
@@ -10,6 +19,8 @@ export async function POST(req) {
             NumberOfVariations,
             Images // Extract the array of images
         } = body;
+
+        const pgid = genparentid();
 
         console.log("Incoming request:", JSON.stringify(body, null, 2));
 
@@ -26,12 +37,12 @@ export async function POST(req) {
         {
             "GroupID": "",
             "Topic": "",
-            "QuestionType": "MCQ/SAQ/Calculation/Diagram",
+            "QuestionType": "",
             "Theme": 1-4,
             "Marks": 0-4,
             "Context": "",
             "Question": "",
-            "Options": [],
+            "Options": "",
             "Answer": "",
             "ImageID": "",
             "Knowledge": 0-4,
@@ -48,7 +59,9 @@ export async function POST(req) {
             "PartNumber": (depending on the number of parts of the question)
         }
         ]
-        Ensure the sum of K, A, A2, and EV does not exceed 4.
+        Ensure the sum of "K", "A", "A2", and "EV" does not exceed 4.
+        "Knowledge", "Application", "Analysis" and "Evaluation" reffering to the bullet points
+        on a mark scheme to give an example of what should be written.
         Always respond as JSON array and even if no context is given ensure you always
         return a JSON array.`;
 
@@ -61,11 +74,32 @@ export async function POST(req) {
             Images: ${Images.length > 0 ? "Attached images are provided." : "No images provided."}
 
             Please generate ${NumberOfVariations} variations of the original question. Each variation should:
-            1. Adhere to the OCR Economics A Level syllabus.
+            1. Adhere to the OCR Economics A Level syllabus and refer to it to decide the theme in the themes column.
             2. Include a question type, context, and other attributes as specified in the JSON structure.
             3. Provide detailed mark schemes and criteria descriptions.
-            4. Incorporate images into ImageID if provided.
+            4. Create images of graphs or put markdown tables of graphs into ImageID if based on the images sent in.
             5. Use effective MR (Marking Requirements) and ER (Examiner Report insights).
+            6 ."Knowledge", "Application", "Analysis" and "Evaluation" columns should be the bullet points in the 
+            mark scheme for each of these, wheras the "K","A","A2","EV" refer to the points for each skill.
+            7. Ensure if its an mcq split the options by a '###'.
+            8. The context should also refer to the context of any images of graphs or tables 
+            produced in the imageid column.
+            9. The Parent Group ID is the ID of the first question in a group, the parent ID is ${pgid}.
+            10. Question ID:
+            Should be generated based on parent ID (the first variation having the parentgroupid being the same as the question id), 
+            the question id of each variation after the first question should be an alpabetic incrementation 
+            (e.g. the first variation is A, 2nd is B ect).
+            11. Part Numbers: Part 0 refers to First question, then Part 1, Part 2 , etc... 
+            reffering to subsequent questions in the group.
+            11. The system should support these three question types:
+            Calculation Questions:
+            Enable LaTeX support exclusively for calculation questions to ensure clean and professional formatting. 
+            Multiple-Choice Questions (MCQs).
+            Short Answer Questions (SAQs).
+            12. Ensure that when creating new graphs, Data is accompanied by relevant trends and summaries, 
+            Insights are linked to the broader question context (e.g., investment impacts due to base rate changes).
+            13. Ensure that when creating new graphs, data is accompanied by relevant trends and summaries, Insights 
+            are linked to the broader question context (e.g., investment impacts due to base rate changes).
             Always respond as JSON array and even if no context is given ensure you always
             return a JSON array.`;
 

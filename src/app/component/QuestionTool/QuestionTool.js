@@ -13,13 +13,30 @@ export default function QuestionTool() {
   const [ExaminerReport, setExaminerReport] = useState("");
   const [ContextArea, setContext] = useState("");
   const [NumberOfVariations, setVariations] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
   const [images, setImages] = useState([]);
   const QtextareaRef = useRef(null);
   const MStextareaRef = useRef(null);
   const ERtextareaRef = useRef(null);
 
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
+    e.preventDefault(); // Prevent default behavior, especially for drag-and-drop
+  
+    let files = [];
+    
+    // Check if it's a drag-and-drop event (from e.dataTransfer)
+    if (e.dataTransfer && e.dataTransfer.files) {
+      files = Array.from(e.dataTransfer.files);
+    }
+    // Check if it's a file input change event (from e.target.files)
+    else if (e.target && e.target.files) {
+      files = Array.from(e.target.files);
+    } else {
+      console.error("No files found in event.");
+      return;
+    }
+  
+    // Process each file
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -27,6 +44,22 @@ export default function QuestionTool() {
       };
       reader.readAsDataURL(file);
     });
+  };
+  
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault(); // Prevent browser from opening the file
+    setIsDragging(false);
+    handleImageUpload(e); // Pass the event to the handler
   };
 
   const SendQuery = () => {
@@ -92,16 +125,21 @@ export default function QuestionTool() {
   return (
     <div className="question-tool-container">
       <div className="input-section">
-        <label className="upload-label">
-          Upload Images:
+        <div
+          className={`drag-and-drop-area ${isDragging ? "dragging" : ""}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <p>Drag and drop files here or click to select</p>
           <input
             type="file"
             accept="image/*"
             multiple
-            onChange={handleImageUpload}
-            className="image-upload"
+            onChange={handleImageUpload}  // Pass the whole event
+            className="hidden-file-input"
           />
-        </label>
+        </div>
 
         <label className="context-label">
           Context Area:
