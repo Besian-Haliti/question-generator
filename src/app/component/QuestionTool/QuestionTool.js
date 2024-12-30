@@ -13,58 +13,46 @@ export default function QuestionTool() {
   const [ExaminerReport, setExaminerReport] = useState("");
   const [ContextArea, setContext] = useState("");
   const [NumberOfVariations, setVariations] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState([]);  // Store files here (not URLs)
+  const [fileCount, setFileCount] = useState(0); // To store the count of uploaded files
   const QtextareaRef = useRef(null);
   const MStextareaRef = useRef(null);
   const ERtextareaRef = useRef(null);
 
   const handleImageUpload = (e) => {
-    e.preventDefault(); // Prevent default behavior, especially for drag-and-drop
-  
-    let files = [];
-    
-    // Check if it's a drag-and-drop event (from e.dataTransfer)
-    if (e.dataTransfer && e.dataTransfer.files) {
-      files = Array.from(e.dataTransfer.files);
-    }
-    // Check if it's a file input change event (from e.target.files)
-    else if (e.target && e.target.files) {
-      files = Array.from(e.target.files);
-    } else {
-      console.error("No files found in event.");
-      return;
-    }
-  
-    // Process each file
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImages((prevImages) => [...prevImages, reader.result]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-  
-  const handleDragOver = (e) => {
     e.preventDefault();
-    setIsDragging(true);
+    const newFiles = Array.from(e.target.files); // Get the new files from the file input
+
+    // Filter out duplicates based on file name and size
+    const uniqueFiles = newFiles.filter(file => {
+      return !images.some(existingFile => existingFile.name === file.name && existingFile.size === file.size);
+    });
+
+    if (uniqueFiles.length > 0) {
+      // Append the new unique files to the existing ones in the images array
+      setImages((prevImages) => [
+        ...prevImages,
+        ...uniqueFiles,
+      ]);
+
+      // Update the file count with the number of new unique files added
+      setFileCount((prevCount) => prevCount + uniqueFiles.length);
+    }
   };
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault(); // Prevent browser from opening the file
-    setIsDragging(false);
-    handleImageUpload(e); // Pass the event to the handler
+  // Remove an uploaded image file
+  const removeFile = (fileToRemove) => {
+    // Filter out the file to remove from the images array
+    const updatedImages = images.filter(file => file.name !== fileToRemove.name || file.size !== fileToRemove.size);
+    
+    setImages(updatedImages);
+    setFileCount(updatedImages.length);  // Update the file count after removal
   };
 
   const SendQuery = () => {
     setShowSubmitButton(false);
     setLoading(true);
-    setError(null); // Reset error before making a new request
+    setError(null);
 
     const payload = {
       OriginalQuestion,
@@ -72,7 +60,7 @@ export default function QuestionTool() {
       ExaminerReport,
       ContextArea,
       NumberOfVariations,
-      Images: images,
+      Images: images,  // Images will now hold the actual file objects
     };
 
     fetch("/api/upload", {
@@ -90,10 +78,10 @@ export default function QuestionTool() {
       })
       .then((data) => {
         try {
-          const cleanedResponse = data.response.replace(/\n/g, '').trim();
-          const jsonMatch = cleanedResponse.match(/\[.*\]/); // Match JSON array
+          const cleanedResponse = data.response.replace(/\n/g, "").trim();
+          const jsonMatch = cleanedResponse.match(/\[.*\]/);
           if (jsonMatch) {
-            const parsedJSON = JSON.parse(cleanedResponse); // Extract and parse
+            const parsedJSON = JSON.parse(cleanedResponse);
             setResponseJSON(Array.isArray(parsedJSON) ? parsedJSON : []);
           } else {
             console.error("Not enough context given.");
@@ -116,54 +104,60 @@ export default function QuestionTool() {
       });
   };
 
-  // Function to format the table rows as CSV
   const handleCopyToClipboard = () => {
-    if (responseJSON.length === 0) return; // No data to copy
-  
-    const rows = responseJSON.map(item => [
+    if (responseJSON.length === 0) return;
+
+    const rows = responseJSON.map((item) => [
       item.GroupID, item.Topic, item.QuestionType, item.Theme, item.Marks, item.Context,
       item.Question, item.Options, item.Answer, item.ImageID, item.Knowledge, item.Application,
       item.Analysis, item.Evaluation, item.WorkingOut, item.Criteria, item.K, item.A, item.A2,
       item.EV, item.ParentGroupID, item.PartNumber
     ]);
-  
+
     const csvContent = rows
-      .map(row => row.join("\t"))  // Join each row with tabs
-      .join("\n");  // Join all rows with newlines
-  
-    // Copy to clipboard
+      .map((row) => row.join("\t"))
+      .join("\n");
+
     navigator.clipboard.writeText(csvContent)
       .then(() => {
-        alert("Table rows copied to clipboard! You can now paste them into Excel.");
+        alert("Table rows copied to clipboard!");
       })
       .catch((err) => {
         console.error("Error copying to clipboard", err);
       });
   };
-  
 
   useEffect(() => {
-    // Log the responseJSON to debug
     console.log("responseJSON:", responseJSON);
   }, [responseJSON]);
 
   return (
     <div className="question-tool-container">
       <div className="input-section">
-        <div
-          className={`drag-and-drop-area ${isDragging ? "dragging" : ""}`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          <p>Drag and drop files here or click 'Choose files' to select</p>
+        <div className="image-upload-section">
           <input
             type="file"
             accept="image/*"
             multiple
-            onChange={handleImageUpload}  // Pass the whole event
+            onChange={handleImageUpload}
             className="hidden-file-input"
           />
+
+          {images.length > 0 && (
+            <div className="uploaded-files">
+              <h4>Uploaded Files:</h4>
+              <ul>
+                {images.map((file, index) => (
+                  <li key={index}>
+                    {file.name}{" "}
+                    <button onClick={() => removeFile(file)} className="remove-button">
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         <label className="context-label">
