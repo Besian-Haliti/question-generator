@@ -79,8 +79,9 @@ export async function POST(req) {
             3. Provide detailed mark schemes and criteria descriptions.
             4. Create images of graphs or put markdown tables of graphs into ImageID if based on the images sent in.
             5. Use effective MR (Marking Requirements) and ER (Examiner Report insights).
-            6 ."Knowledge", "Application", "Analysis" and "Evaluation" columns should be the bullet points in the 
-            mark scheme for each of these, wheras the "K","A","A2","EV" refer to the points for each skill.
+            6 ."Knowledge", "Application", "Analysis" and "Evaluation" columns should be the content of the bullet points in the 
+            mark scheme for each of these they should never be numbers, 
+            wheras the "K","A","A2","EV" refer to the number of marks for each skill.
             7. Ensure if its an mcq split the options by a '###' and the options aren't labeled 
             e.g. A) B) C) just have it be the options split by ###.
             8. The context should also refer to the context of any images of graphs or tables 
