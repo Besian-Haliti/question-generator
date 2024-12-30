@@ -156,7 +156,7 @@ export default function QuestionTool() {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          <p>Drag and drop files here or click to select</p>
+          <p>Drag and drop files here or click 'Choose files' to select</p>
           <input
             type="file"
             accept="image/*"
