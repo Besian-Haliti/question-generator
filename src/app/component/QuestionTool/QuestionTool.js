@@ -46,7 +46,6 @@ export default function QuestionTool() {
     });
   };
   
-
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -116,6 +115,32 @@ export default function QuestionTool() {
         setShowSubmitButton(true);
       });
   };
+
+  // Function to format the table rows as CSV
+  const handleCopyToClipboard = () => {
+    if (responseJSON.length === 0) return; // No data to copy
+  
+    const rows = responseJSON.map(item => [
+      item.GroupID, item.Topic, item.QuestionType, item.Theme, item.Marks, item.Context,
+      item.Question, item.Options, item.Answer, item.ImageID, item.Knowledge, item.Application,
+      item.Analysis, item.Evaluation, item.WorkingOut, item.Criteria, item.K, item.A, item.A2,
+      item.EV, item.ParentGroupID, item.PartNumber
+    ]);
+  
+    const csvContent = rows
+      .map(row => row.join("\t"))  // Join each row with tabs
+      .join("\n");  // Join all rows with newlines
+  
+    // Copy to clipboard
+    navigator.clipboard.writeText(csvContent)
+      .then(() => {
+        alert("Table rows copied to clipboard! You can now paste them into Excel.");
+      })
+      .catch((err) => {
+        console.error("Error copying to clipboard", err);
+      });
+  };
+  
 
   useEffect(() => {
     // Log the responseJSON to debug
@@ -201,6 +226,11 @@ export default function QuestionTool() {
           </button>
         )}
         {loading && <p className="loading-text">Loading...</p>}
+        {responseJSON.length > 0 && (
+          <button className="copy-button" onClick={handleCopyToClipboard}>
+            Copy to Clipboard
+          </button>
+        )}
       </div>
 
       <div className="response-section">

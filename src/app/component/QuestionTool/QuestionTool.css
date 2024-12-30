@@ -127,3 +127,27 @@ button.submit-button:hover {
     border-color: #0056b3; /* Darker blue to indicate active state */
     color: #0056b3;
 }
+
+/* Style for the "Copy to Clipboard" button */
+button.copy-button {
+    background-color: #0056b3;  /* Green color for copy button */
+    color: #fff;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+    float: right;  /* Aligns the button to the right */
+    margin-left: 10px;  /* Adds a small gap between the buttons */
+}
+
+button.copy-button:hover {
+    background-color: #0056b3;  /* Darker green on hover */
+}
+
+button.copy-button:disabled {
+    background-color: #6c757d;  /* Greyed out when disabled */
+    cursor: not-allowed;
+}

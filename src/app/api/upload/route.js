@@ -81,7 +81,8 @@ export async function POST(req) {
             5. Use effective MR (Marking Requirements) and ER (Examiner Report insights).
             6 ."Knowledge", "Application", "Analysis" and "Evaluation" columns should be the bullet points in the 
             mark scheme for each of these, wheras the "K","A","A2","EV" refer to the points for each skill.
-            7. Ensure if its an mcq split the options by a '###'.
+            7. Ensure if its an mcq split the options by a '###' and the options aren't labeled 
+            e.g. A) B) C) just have it be the options split by ###.
             8. The context should also refer to the context of any images of graphs or tables 
             produced in the imageid column.
             9. The Parent Group ID is the ID of the first question in a group, the parent ID is ${pgid}.
@@ -96,9 +97,7 @@ export async function POST(req) {
             Enable LaTeX support exclusively for calculation questions to ensure clean and professional formatting. 
             Multiple-Choice Questions (MCQs).
             Short Answer Questions (SAQs).
-            12. Ensure that when creating new graphs, Data is accompanied by relevant trends and summaries, 
-            Insights are linked to the broader question context (e.g., investment impacts due to base rate changes).
-            13. Ensure that when creating new graphs, data is accompanied by relevant trends and summaries, Insights 
+            12. Ensure that when creating new graphs, data is accompanied by relevant trends and summaries, Insights 
             are linked to the broader question context (e.g., investment impacts due to base rate changes).
             Always respond as JSON array and even if no context is given ensure you always
             return a JSON array.`;
